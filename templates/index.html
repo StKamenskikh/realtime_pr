@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<h1 id="app1">{{text}}</h1>
+<script>
+  var socket = new WebSocket('ws://localhost:86/ws/some_url/');
+
+  socket.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    console.log(data);
+    document.getElementById('app1').innerText = data.message;
+
+  }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+﻿syntax = "proto3";
+
+package GRPCProto;
+
+service GRPCProto {
+  //конект 
+  rpc Connect(Ret) returns (Ret) {}
+
+  //получить cведения об открытом проекте
+  rpc GetProjectInfo(ArgProject) returns (ProjectInfo) {}
+
+  //получить перечень активов
+  rpc GetAssets(Ret) returns (Assets) {}
+
+  //получить перечень групп актива
+  rpc GetGroupsAsset(ArgTags) returns (GroupsAssets) {}
+
+  //получить cведения о ресурсе исторических данных актива
+  rpc GetAssetHistInfo(ArgAsset) returns (AssetHistInfo) {}
+
+  //получить перечень групп тэгов актива
+  rpc GetGroupsTags(ArgTags) returns (GroupsTags) {}
+
+  //получить перечень тэгов актива
+  rpc GetTags(ArgTags) returns (Tags) {}
+
+  //получить текущие данные тегов (синхронно)
+  rpc GetData(ArgData) returns (TagsDataArray) {}
+
+  //получить поток текущих данных тегов
+  rpc GetDataStream(ArgData) returns (stream TagsDataArray) {}
+
+  //получить последние данные тегов (моментальный снимок)
+  rpc GetDataSnapShot(ArgDataSnapShot) returns (TagsDataArray) {}
+
+  //получить исторические данные тегов из источника (для распределенной системы хранения)
+  rpc GetSourceDataHistStream(ArgDataHist) returns (stream TagsDataHistArray) {}
+
+  //получить срезы исторических данных тегов из источника (для распределенной системы хранения)
+  rpc GetSourceSliceDataHistStream(ArgSliceDataHist) returns (stream TagsDataHistArray) {}
+
+  //получить текущие события (синхронно)
+  rpc GetEvents(ArgEvents) returns (Events) {}
+
+  //получить поток текущих событий
+  rpc GetEventsStream(ArgEvents) returns (stream Events) {}
+
+  //получить неподтвержденные события
+  rpc GetUnAckEvents(ArgEvents) returns (Events) {}
+
+  //подтвердить событие
+  rpc AckEvent(ArgAckEvent) returns (Ret) {}
+
+  //проверить учетные данные пользователя
+  rpc VerifyUserCredentials (ArgUserCredentials) returns (RetUserParams) {}
+}
+
+//Описание типа: Сведения об открытом проекте 
+message ProjectInfo {
+  string server = 1;
+  string host = 2;
+  string port = 3;
+  string database = 4;
+  string scheme = 5;
+  string user = 6;
+  string password = 7;
+  int32 projectId = 8;
+  string projectName = 9;
+  string msg = 10; //информация о возникшей ошибке или сообщении
+}
+
+//Описание типа: Аргумент запроса cведений об открытом проекте
+message ArgProject {
+  string accessToken = 1;
+}
+
+//Описание типа: Актив 
+message AssetType {
+  int32 id = 1;
+  string name = 2;
+  string desc = 3;
+  int32 idGroup = 4;
+}
+
+//Описание типа: Перечень активов 
+message Assets {
+  repeated AssetType assets = 1;
+}
+
+//Описание типа: Аргумент запроса cведений о ресурсе исторических данных актива
+message ArgAsset {
+  int32 assetId = 1;
+}
+
+//Описание типа: Сведения об ресурсе исторических / архивных данных актива 
+message AssetHistInfo {
+  string server = 1;
+  string host = 2;
+  string port = 3;
+  string database = 4;
+  string scheme = 5;
+  string user = 6;
+  string password = 7;
+  string additional = 8;
+}
+
+//Описание типа: Аргумент запроса перечня групп / тегов 
+message ArgTags {
+  int32 assetId = 1;
+}
+
+//Описание типа: Группа тегов 
+message GroupTagsType {
+  int32 id = 1;
+  string name = 2;
+  string desc = 3;
+  int32 parentID = 4;
+}
+
+//Описание типа: Группа актива 
+message GroupAssetType {
+  int32 id = 1;
+  string name = 2;
+  string desc = 3;
+  int32 parentID = 4;
+}
+
+//Описание типа: Перечень групп тэгов 
+message GroupsTags {
+  repeated GroupTagsType groupsTags = 1;
+}
+
+//Описание типа: Перечень групп активов 
+message GroupsAssets {
+  repeated GroupAssetType groupsAssets = 1;
+}
+
+//Описание типа: Тег 
+message TagType {
+  int32 id = 1;
+  int32 idGroup = 2;
+  string name = 3;
+  string desc = 4;
+  string type = 5;
+  string unit = 6;
+  float lowVal = 7;
+  float hiVal = 8;
+  bool isSaveInDB = 9;
+}
+
+//Описание типа: Перечень тэгов 
+message Tags {
+  repeated TagType tags = 1;
+}
+
+//Описание типа: Значение тега 
+message TagVal {
+  int32 tagId = 1;
+  uint32 timeStamp = 2;
+  float value = 3;
+  bool isGood = 4;
+}
+
+//Описание типа: Массив данных тегов 
+message TagsDataArray {
+  repeated TagVal tagsVal = 1;
+}
+
+message TagsDataHistArray {
+  repeated TagVal tagsVal = 1;
+  bool fin = 2; //флаг, указывающий что данный пакет последний в запросе
+  string msg = 3; //информация о возникшей ошибке или сообщении
+}
+
+//Описание типа: Аргумент запроса текущих данных тегов 
+message ArgData {
+  int32 assetId = 1;
+  repeated int32 tagsId  = 2;
+  uint32 timeStampFrom = 3;
+}
+
+//Описание типа: Аргумент запроса исторических данных тегов 
+message ArgDataHist {
+  int32 assetId = 1;
+  repeated int32 tagsId  = 2;
+  uint32 timeStampFrom = 3;
+  uint32 timeStampTo = 4;
+  string accessToken = 5;
+}
+
+//Описание типа: Аргумент запроса среза исторических данных
+message ArgSliceDataHist {
+  int32 assetId = 1;
+  repeated int32 tagsId  = 2;
+  uint32 timeStampFrom = 3;
+  uint32 timeStampTo = 4;
+  int32 slicesCount = 5;
+  string accessToken = 6;
+}
+
+//Описание типа: Аргумент запроса последних данных тегов (моментальный снимок) 
+message ArgDataSnapShot {
+  int32 assetId = 1;
+  repeated int32 tagsId  = 2;
+}
+
+//Описание типа: Содержание события 
+message EventVal {
+  uint32 timeStamp = 1;
+  string type = 2;
+  string cat = 3;
+  string status = 4;
+  string msg = 5;
+  string additional = 6;
+  int32 eventId = 7;
+  string info = 8;
+  string trends = 9;  
+  string user = 10;
+  string comments = 11;
+  string history = 12;
+}
+
+//Описание типа: Текущие события 
+message Events {
+  repeated EventVal enentsVal = 1;
+}
+
+//Описание типа: Аргумент запроса текущих событий 
+message ArgEvents {
+  int32 assetId = 1;
+  uint32 timeStampFrom = 2;
+}
+
+//Описание типа: Аргумент запроса проверки учетных данных пользователя 
+message ArgUserCredentials {
+  string login = 1;
+  string password = 2;
+  bool isAnonymousUser = 3;
+}
+
+//Описание типа: Аргумент запроса подтверждения события 
+message ArgAckEvent {
+  int32 assetId = 1;
+  EventVal event = 2;
+}
+
+//Описание типа: Ответ запроса проверки учетных данных пользователя 
+message RetUserParams {
+  bool verifyRezult = 1;
+  string login = 2;
+  string password = 3;
+  string name = 4;
+  string post = 5;
+  string role = 6;
+}
+
+//Описание типа Булевское значение 
+message Ret {
+  bool answer = 1;
+}

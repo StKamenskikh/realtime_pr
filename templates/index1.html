@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<h1 id="app1">{{text}}</h1>
+<script>
+    ws_url = 'ws://localhost:86/ws/tags='
+    ws_url = ws_url.concat('a1g1t1').concat('_')
+    ws_url = ws_url.concat('/')
+    var socket = new WebSocket(ws_url)
+    socket.onmessage = function (e) {
+        var data = JSON.parse(e.data)
+        console.log(data)
+        document.getElementById('app1').innerText = data
+
+    }
+</script>
+</body>
+</html>
